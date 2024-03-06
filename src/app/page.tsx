@@ -1,17 +1,16 @@
 'use client'
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getMessaging, getToken, onMessage } from "firebase/messaging";
+import { getMessaging, onMessage } from "firebase/messaging";
 import firebaseConfig from "../../utils/firebaseConfig.json";
 import { useEffect } from "react";
 
 export default function Home() {
   // Initialize Firebase
   const app = initializeApp(firebaseConfig);
-  const messaging = getMessaging(app);
   useEffect(() => {
     // Set up the onMessage listener outside fetch request
-    onMessage(messaging, (payload) => {
+    onMessage(getMessaging(app), (payload) => {
       console.log('messageReceived', payload);
       // Handle incoming messages here
     });
@@ -19,16 +18,12 @@ export default function Home() {
 
   const confirmNotification = () => {
 
-    if (window && window.Notification.permission !== "granted" ) {
+    if (window && window.Notification.permission !== "granted") {
       console.log("Inside if", window.Notification.permission);
       window.Notification.requestPermission();
     } else {
       console.log("notifications not allowed");
     }
-  }
-
-  function topicOnMessageHandler(message: string) {
-    console.log(message);
   }
 
   const triggerNotification = () => {
@@ -62,7 +57,7 @@ export default function Home() {
       }).then((response: any) => {
         console.log(response, "SUBSCRIBED")
         if (response.status === 200) {
-          console.log(response,"RS")
+          console.log(response, "RS")
         }
       })
       .catch(() => {
