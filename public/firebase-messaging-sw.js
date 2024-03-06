@@ -27,8 +27,11 @@ firebase.initializeApp({
 const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage((message) => {
-  return self.showNotification(
+    console.log(message,"MSG")
+  return new Notification(
     message.notification.title,
-    message.notification
+    {
+        icon:message.image
+    }
   );
 });

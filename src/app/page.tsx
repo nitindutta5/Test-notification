@@ -1,13 +1,15 @@
 'use client'
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getMessaging, onMessage } from "firebase/messaging";
+import { getMessaging, getToken, onMessage } from "firebase/messaging";
 import firebaseConfig from "../../utils/firebaseConfig.json";
 import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
   // Initialize Firebase
   const app = initializeApp(firebaseConfig);
+  const router = useRouter();
   useEffect(() => {
     // Set up the onMessage listener outside fetch request
     onMessage(getMessaging(app), (payload) => {
@@ -37,10 +39,25 @@ export default function Home() {
   }
 
   const subscribeToTopic = (topicName: string) => {
+    getToken(getMessaging(), { vapidKey: 'BAIvvsE2zXF7Cf9YukrxY6MCfdtE2M6hl7ErNxvCqoOUVKl0vusW9VfYjG8h-hs_-pNFTvtNgNsyyoyYTF1rlGA' }).then((currentToken:any) => {
+      if (currentToken) {
+        // Send the token to your server and update the UI if necessary
+        console.log("Token generated", currentToken);
+        // ...
+      } else {
+        // Show permission request UI
+        console.log('No registration token available. Request permission to generate one.');
+        // ...
+      }
+    }).catch((err) => {
+      console.log('An error occurred while retrieving token. ', err);
+      // ...
+    });
+
     // Subscribe to the topic
     const topicURL = `https://fcm.googleapis.com/fcm/send`;
     const body = JSON.stringify({
-      "to": "/topics/news",
+      "to": "/topics/all",
       "notification": {
         "body": "This week's edition is now available.",
         "title": "NewsMagazine.com",
@@ -64,6 +81,21 @@ export default function Home() {
         console.error(`Can't subscribe to ${topicName} topic`);
       });
   };
+    // useEffect(() => {
+    //   // Service worker registration
+    //   if ('serviceWorker' in navigator) {
+    //     window.addEventListener('load', () => {
+    //       navigator.serviceWorker
+    //         .register('/firebase-messaging-sw.js')
+    //         .then((registration) => {
+    //           console.log('Service worker registered:', registration);
+    //         })
+    //         .catch((error) => {
+    //           console.error('Service worker registration failed:', error);
+    //         });
+    //     });
+    //   }
+    // }, [router]);
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
       <button onClick={() => confirmNotification()}>Ask for notification</button>
